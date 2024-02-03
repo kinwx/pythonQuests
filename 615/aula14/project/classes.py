@@ -3,12 +3,12 @@ class Livro:
         self.id = id
         self.titulo = titulo
         self.autor = autor
-        self.statusEmprestimo = "Disponível"
+        self.status = "Disponível"
 
 
 class Membro:
-    def __init__(self, numeroMembro: int, nome: str) -> None:
-        self.numeroMembro = numeroMembro
+    def __init__(self, membroId: int, nome: str) -> None:
+        self.id = membroId
         self.nome = nome
         self.historico = []
 
@@ -36,14 +36,13 @@ class Biblioteca:
     def emprestimo(self, livro: Livro):
         for book in self.catalogo:
             if(book == livro):
-                book.statusEmprestimo = "Indiponível"
-
+                book.status = "Indiponível"
 
     def devolucao(self, livro: Livro, quemDevolveu: str):
         for book in self.catalogo:
             if(book == livro):
-                book.statusEmprestimo = "Disponível"
-                self.historicoDeDevolucao({"quemDevolveu": quemDevolveu, "livro": livro})
+                book.status = "Disponível"
+                self.historicoDeDevolucao.append({"quemDevolveu": quemDevolveu, "livro": livro})
 
 
     def pesquisaDeLivros(self, busca: str):
@@ -54,7 +53,7 @@ class Biblioteca:
 
         livrosPorTitulo = []
         for livro in self.catalogo:
-            if(busca in livro.titulo):
+            if(busca.lower() in livro.titulo.lower()):
                 livrosPorTitulo.append(livro)
         
         if(len(livrosPorTitulo) > 0):
@@ -62,7 +61,7 @@ class Biblioteca:
         
         livrosPorAutor = []
         for livro in self.catalogo:
-            if(busca in livro.autor):
+            if(busca.lower() in livro.autor.lower()):
                 livrosPorAutor.append(livro)
         
         if(len(livrosPorAutor) > 0):
@@ -76,8 +75,9 @@ class Biblioteca:
     def adicionarMembro(self, membro: Membro) -> None:
         self.registroMembros.append(membro)
 
-    # def attStatusLivro(self, livro: Livro, status: str) -> None:
-    #     for book in self.catalogo:
-    #         if(book == livro):
-    #             book.statusEmprestimo = status
-
+    def pesquisaPorTitulo(self, titulo: str):
+        for livro in self.catalogo:
+            if(livro.titulo.lower() == titulo.lower()):
+                return livro
+        
+        return False
