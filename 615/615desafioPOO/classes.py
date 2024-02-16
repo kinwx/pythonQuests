@@ -11,7 +11,12 @@ class Conta:
         self.tipo = tipo
 
     def saque(self, qnt: float) -> dict:
-        if(qnt <= self.saldo and qnt != 0):
+        if(qnt == 0):
+            return {
+                "menssagem": vermelho + "Não é possível realizar saque de quantia 0(Zero)!"
+            }
+
+        if(qnt <= self.saldo):
             self.saldo = round(self.saldo - qnt, 2)
             return {
                 "menssagem": verde + "Saque efetuado com sucesso!" + stopColor,
@@ -31,7 +36,7 @@ class Conta:
         
         self.saldo += qnt
         return {
-            "menssagem": f"{verde}Valor depositado! Saldo atual: $ {self.saldo:.2f}{stopColor}"
+            "menssagem": f"{verde}Valor depositado!{stopColor}{verde if self.saldo > 0 else vermelho} Saldo atual: $ {self.saldo:.2f}{stopColor}"
         }
 
     def exibirSaldo(self) -> dict:
@@ -58,9 +63,9 @@ class ContaCorrente(Conta):
     def saque(self, qnt: float) -> dict:
         if(qnt > self.saldo):
             controlSaldo = self.saldo if self.saldo >= 0 else 0
-            if(qnt < controlSaldo + self.limiteDeChequeEspecial):
+            if(qnt <= controlSaldo + self.limiteDeChequeEspecial):
                 self.limiteDeChequeEspecial -= (qnt - controlSaldo)
-                self.saldo -= qnt
+                self.saldo = round(self.saldo - qnt, 2)
                 return {
                     "menssagem": verde + "Saque efetuado com sucesso!" + stopColor,
                     "valor": qnt,
@@ -68,11 +73,17 @@ class ContaCorrente(Conta):
                 } 
             else: 
                 return {
-                    "menssagem": f"{amarelo}Valor de saque é maior do que o permitido. Cheque especial: {self.limiteDeChequeEspecial}{stopColor}",
+                    "menssagem": f"{amarelo}Valor de saque é maior do que o permitido. Cheque especial: $ {self.limiteDeChequeEspecial:.2f}{stopColor}",
                     "valor": 0
                 }
 
         return super().saque(qnt)
+    
+    def depositar(self, qnt: float) -> dict:
+        valorFaltante = 500 - self.limiteDeChequeEspecial
+        self.limiteDeChequeEspecial += valorFaltante if valorFaltante <= qnt else qnt
+
+        return super().depositar(qnt)
     
 
 class ContaPoupanca(Conta):
