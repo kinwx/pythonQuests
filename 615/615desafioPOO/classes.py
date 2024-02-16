@@ -45,7 +45,7 @@ class Conta:
             "tipo": self.tipo,
             "conta": self.conta,
             "titular": self.titular,
-            "saldo": self.saldo,
+            "saldo": f'{verde if self.saldo > 0 else vermelho}{self.saldo:.2f}{stopColor}',
         }
     
 
@@ -56,11 +56,21 @@ class ContaCorrente(Conta):
         self.limiteDeChequeEspecial = 500 # limite para saque $ 500,00
 
     def saque(self, qnt: float) -> dict:
-        if(qnt > self.limiteDeChequeEspecial):
-            return {
-                "menssagem": f"{amarelo}Valor de saque é maior do que o permitido. Valor máximo: {self.limiteDeChequeEspecial:.2f}{stopColor}",
-                "valor": 0
-            }
+        if(qnt > self.saldo):
+            controlSaldo = self.saldo if self.saldo >= 0 else 0
+            if(qnt < controlSaldo + self.limiteDeChequeEspecial):
+                self.limiteDeChequeEspecial -= (qnt - controlSaldo)
+                self.saldo -= qnt
+                return {
+                    "menssagem": verde + "Saque efetuado com sucesso!" + stopColor,
+                    "valor": qnt,
+                    "saldo": self.saldo,
+                } 
+            else: 
+                return {
+                    "menssagem": f"{amarelo}Valor de saque é maior do que o permitido. Cheque especial: {self.limiteDeChequeEspecial}{stopColor}",
+                    "valor": 0
+                }
 
         return super().saque(qnt)
     
